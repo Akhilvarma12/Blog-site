@@ -12,8 +12,16 @@ import {
 
 function* fetchPostsSaga() {
   try {
-    const posts: Post[] = yield call([apiService, "getPosts"])
-    yield put(fetchPostsSuccess(posts))
+    const cachedPosts = localStorage.getItem("posts")
+
+    if (cachedPosts) {
+      const posts: Post[] = JSON.parse(cachedPosts)
+      yield put(fetchPostsSuccess(posts))
+    } else {
+      const posts: Post[] = yield call([apiService, "getPosts"])
+      localStorage.setItem("posts", JSON.stringify(posts))
+      yield put(fetchPostsSuccess(posts))
+    }
   } catch (error) {
     const message = error instanceof Error ? error.message : "Failed to fetch posts"
     yield put(fetchPostsFailure(message))
@@ -22,20 +30,30 @@ function* fetchPostsSaga() {
 
 function* fetchPostDetailSaga(action: FetchPostDetailAction) {
   try {
-    const post: Post = yield call([apiService, "getPost"], action.payload)
-    const user: User = yield call([apiService, "getUser"], post.userId)
+    const postId = action.payload
+    const cachedData = localStorage.getItem(`post-${postId}`)
 
-    const postWithUser: PostWithUser = {
-      ...post,
-      user,
+    if (cachedData) {
+      const postWithUser: PostWithUser = JSON.parse(cachedData)
+      yield put(fetchPostDetailSuccess(postWithUser))
+    } else {
+      const post: Post = yield call([apiService, "getPost"], postId)
+      const user: User = yield call([apiService, "getUser"], post.userId)
+
+      const postWithUser: PostWithUser = {
+        ...post,
+        user,
+      }
+
+      localStorage.setItem(`post-${postId}`, JSON.stringify(postWithUser))
+      yield put(fetchPostDetailSuccess(postWithUser))
     }
-
-    yield put(fetchPostDetailSuccess(postWithUser))
   } catch (error) {
     const message = error instanceof Error ? error.message : "Failed to fetch post details"
     yield put(fetchPostDetailFailure(message))
   }
 }
+
 
 function* watchFetchPosts() {
   yield takeEvery(FETCH_POSTS_REQUEST, fetchPostsSaga)
