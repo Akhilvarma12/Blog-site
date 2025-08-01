@@ -1,12 +1,12 @@
 import type { Post, User } from "@/src/types"
 
-const API_BASE_URL = "https://jsonplaceholder.typicode.com"
+const API_BASE_URL = "https://dummyjson.com"
 
 class ApiService {
   private async request<T>(endpoint: string): Promise<T> {
     try {
       const controller = new AbortController()
-      const timeoutId = setTimeout(() => controller.abort(), 10000) // 10 second timeout
+      const timeoutId = setTimeout(() => controller.abort(), 10000)
 
       const response = await fetch(`${API_BASE_URL}${endpoint}`, {
         signal: controller.signal,
@@ -34,15 +34,16 @@ class ApiService {
     }
   }
 
-  async fetchPosts(): Promise<Post[]> {
-    return this.request<Post[]>("/posts")
+  async getPosts(): Promise<Post[]> {
+    const data = await this.request<{ posts: Post[] }>("/posts")
+    return data.posts
   }
 
-  async fetchPostById(id: number): Promise<Post> {
+  async getPost(id: number): Promise<Post> {
     return this.request<Post>(`/posts/${id}`)
   }
 
-  async fetchUserById(id: number): Promise<User> {
+  async getUser(id: number): Promise<User> {
     return this.request<User>(`/users/${id}`)
   }
 }

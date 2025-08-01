@@ -7,13 +7,13 @@ import { fetchPostsRequest } from "@/src/store/actions"
 import { PostsGrid } from "@/src/components/PostsGrid"
 import { LoadingSpinner } from "@/src/components/LoadingSpinner"
 import { ErrorDisplay } from "@/src/components/ErrorDisplay"
+import type { Post } from "@/src/types"  // Ensure this matches the updated Post interface
 
 export default function HomePage() {
-  const dispatch = useDispatch<AppDispatch>() // Type the dispatch directly
-  // Adjust based on your actual state structure
-  const posts = useSelector((state: RootState) => state.posts) // If posts is just an array
-  const loading = useSelector((state: RootState) => state.loading) // If loading is at root level
-  const error = useSelector((state: RootState) => state.error) // If error is at root level
+  const dispatch = useDispatch<AppDispatch>()
+  const posts = useSelector((state: RootState) => state.posts) as Post[]
+  const loading = useSelector((state: RootState) => state.loading)
+  const error = useSelector((state: RootState) => state.error)
 
   useEffect(() => {
     dispatch(fetchPostsRequest())
@@ -21,14 +21,6 @@ export default function HomePage() {
 
   const handleRetry = () => {
     dispatch(fetchPostsRequest())
-  }
-
-  if (loading && posts.length === 0) {
-    return <LoadingSpinner message="Loading posts..." />
-  }
-
-  if (error && posts.length === 0) {
-    return <ErrorDisplay message={error} onRetry={handleRetry} />
   }
 
   return (
@@ -39,6 +31,14 @@ export default function HomePage() {
           Discover amazing articles and insights from our community of writers.
         </p>
       </div>
+
+      {loading && posts.length === 0 && (
+        <LoadingSpinner message="Loading posts..." />
+      )}
+
+      {error && posts.length === 0 && (
+        <ErrorDisplay message={error} onRetry={handleRetry} />
+      )}
 
       {posts.length > 0 && (
         <div>

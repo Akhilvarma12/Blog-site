@@ -5,6 +5,12 @@ export interface Post {
   id: number
   title: string
   body: string
+  tags: string[]
+  reactions: {
+    likes: number
+    dislikes: number
+  }
+  views: number
   userId: number
 }
 
@@ -32,9 +38,23 @@ export interface User {
   }
 }
 
+export interface PostWithUser {
+  id: number
+  title: string
+  body: string
+  tags: string[]
+  reactions: {
+    likes: number
+    dislikes: number
+  }
+  views: number
+  userId: number
+}
+
 export interface PostWithUser extends Post {
   user?: User
 }
+
 
 // Redux State Types
 export interface PostsState {

@@ -10,15 +10,14 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/src/components/ui/ca
 import { Badge } from "@/src/components/ui/badge"
 import { LoadingSpinner } from "@/src/components/LoadingSpinner"
 import { ErrorDisplay } from "@/src/components/ErrorDisplay"
-import { ArrowLeft, User, Mail, Phone, Globe } from "lucide-react"
+import { ArrowLeft, Eye, ThumbsUp, ThumbsDown, Hash, User } from "lucide-react"
 
 export default function PostDetailPage() {
-  const dispatch = useDispatch<AppDispatch>() // Type the dispatch
+  const dispatch = useDispatch<AppDispatch>()
   const router = useRouter()
   const params = useParams()
   const postId = params.id ? Number.parseInt(params.id as string, 10) : null
 
-  // Match your current state structure  
   const currentPost = useSelector((state: RootState) => state.currentPost)
   const loading = useSelector((state: RootState) => state.loading)
   const error = useSelector((state: RootState) => state.error)
@@ -94,78 +93,41 @@ export default function PostDetailPage() {
         <CardHeader>
           <div className="flex items-center justify-between mb-4">
             <Badge variant="secondary">Post #{currentPost.id}</Badge>
-            {currentPost.user && (
-              <Badge variant="outline">
-                <User className="mr-1 h-3 w-3" />
-                {currentPost.user.name}
-              </Badge>
-            )}
+            <Badge variant="outline">
+              <User className="mr-1 h-3 w-3" />
+              User ID: {currentPost.userId}
+            </Badge>
           </div>
           <CardTitle className="text-2xl md:text-3xl">{currentPost.title}</CardTitle>
         </CardHeader>
         <CardContent>
-          <p className="text-lg leading-relaxed">{currentPost.body}</p>
+          <p className="text-lg leading-relaxed mb-6">{currentPost.body}</p>
+
+          <div className="flex flex-wrap gap-2 mb-4">
+            {currentPost.tags?.map((tag: string) => (
+              <Badge key={tag} variant="outline" className="flex items-center text-sm">
+                <Hash className="mr-1 h-3 w-3" />
+                {tag}
+              </Badge>
+            ))}
+          </div>
+
+          <div className="flex gap-4 text-sm text-muted-foreground items-center">
+            <span className="flex items-center">
+              <Eye className="mr-1 h-4 w-4" />
+              {currentPost.views} views
+            </span>
+            <span className="flex items-center">
+              <ThumbsUp className="mr-1 h-4 w-4" />
+              {currentPost.reactions?.likes ?? 0} likes
+            </span>
+            <span className="flex items-center">
+              <ThumbsDown className="mr-1 h-4 w-4" />
+              {currentPost.reactions?.dislikes ?? 0} dislikes
+            </span>
+          </div>
         </CardContent>
       </Card>
-
-      {currentPost.user && (
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center">
-              <User className="mr-2 h-5 w-5" />
-              About the Author
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <h4 className="font-semibold text-lg">{currentPost.user.name}</h4>
-                <p className="text-muted-foreground">@{currentPost.user.username}</p>
-              </div>
-              <div className="space-y-2">
-                <div className="flex items-center text-sm">
-                  <Mail className="mr-2 h-4 w-4" />
-                  <a href={`mailto:${currentPost.user.email}`} className="hover:underline">
-                    {currentPost.user.email}
-                  </a>
-                </div>
-                <div className="flex items-center text-sm">
-                  <Phone className="mr-2 h-4 w-4" />
-                  <span>{currentPost.user.phone}</span>
-                </div>
-                <div className="flex items-center text-sm">
-                  <Globe className="mr-2 h-4 w-4" />
-                  <a
-                    href={`http://${currentPost.user.website}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="hover:underline"
-                  >
-                    {currentPost.user.website}
-                  </a>
-                </div>
-              </div>
-            </div>
-
-            <div className="pt-4 border-t">
-              <h5 className="font-medium mb-2">Company</h5>
-              <p className="text-sm text-muted-foreground">
-                <strong>{currentPost.user.company.name}</strong> - {currentPost.user.company.catchPhrase}
-              </p>
-              <p className="text-xs text-muted-foreground mt-1">{currentPost.user.company.bs}</p>
-            </div>
-
-            <div className="pt-4 border-t">
-              <h5 className="font-medium mb-2">Address</h5>
-              <p className="text-sm text-muted-foreground">
-                {currentPost.user.address.street}, {currentPost.user.address.suite}
-                <br />
-                {currentPost.user.address.city}, {currentPost.user.address.zipcode}
-              </p>
-            </div>
-          </CardContent>
-        </Card>
-      )}
     </div>
   )
 }

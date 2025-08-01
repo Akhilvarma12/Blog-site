@@ -12,15 +12,16 @@ import {
 
 function* fetchPostsSaga() {
   try {
-    const cachedPosts = localStorage.getItem("posts")
+    const cached = localStorage.getItem("posts")
 
-    if (cachedPosts) {
-      const posts: Post[] = JSON.parse(cachedPosts)
+    if (cached) {
+      const parsed = JSON.parse(cached)
+      const posts: Post[] = Array.isArray(parsed) ? parsed : parsed.posts
       yield put(fetchPostsSuccess(posts))
     } else {
-      const posts: Post[] = yield call([apiService, "getPosts"])
-      localStorage.setItem("posts", JSON.stringify(posts))
-      yield put(fetchPostsSuccess(posts))
+      const data: { posts: Post[] } = yield call([apiService, apiService.getPosts])
+      localStorage.setItem("posts", JSON.stringify(data.posts)) 
+      yield put(fetchPostsSuccess(data.posts))
     }
   } catch (error) {
     const message = error instanceof Error ? error.message : "Failed to fetch posts"
